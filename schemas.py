@@ -11,38 +11,52 @@ Model name is converted to lowercase for the collection name:
 - BlogPost -> "blogs" collection
 """
 
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, Field, EmailStr
+from typing import Optional, List
+from datetime import datetime
 
-# Example schemas (replace with your own):
+# ---------------- VoiceForge App Schemas ----------------
 
+class DemoRequest(BaseModel):
+    name: str = Field(..., min_length=2, description="Full name")
+    email: EmailStr
+    company: Optional[str] = Field(None, description="Company name")
+    phone: Optional[str] = Field(None, description="Phone number")
+    interest: Optional[str] = Field(None, description="Interested agent or package")
+    message: Optional[str] = Field(None, description="Optional message")
+
+class ContactMessage(BaseModel):
+    name: str = Field(..., min_length=2)
+    email: EmailStr
+    phone: Optional[str] = None
+    company: Optional[str] = None
+    message: str = Field(..., min_length=5)
+
+class OrderItem(BaseModel):
+    agent: str = Field(..., description="Agent or package identifier")
+    quantity: int = Field(1, ge=1, le=10)
+
+class OrderRequest(BaseModel):
+    customer_name: str
+    customer_email: EmailStr
+    company: Optional[str] = None
+    phone: Optional[str] = None
+    selection: List[OrderItem]
+    setup_fee: float
+    monthly_total: float
+    notes: Optional[str] = None
+
+# Example schemas (kept for reference; not used in app)
 class User(BaseModel):
-    """
-    Users collection schema
-    Collection name: "user" (lowercase of class name)
-    """
-    name: str = Field(..., description="Full name")
-    email: str = Field(..., description="Email address")
-    address: str = Field(..., description="Address")
-    age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
-    is_active: bool = Field(True, description="Whether user is active")
+    name: str
+    email: EmailStr
+    address: Optional[str] = None
+    age: Optional[int] = None
+    is_active: bool = True
 
 class Product(BaseModel):
-    """
-    Products collection schema
-    Collection name: "product" (lowercase of class name)
-    """
-    title: str = Field(..., description="Product title")
-    description: Optional[str] = Field(None, description="Product description")
-    price: float = Field(..., ge=0, description="Price in dollars")
-    category: str = Field(..., description="Product category")
-    in_stock: bool = Field(True, description="Whether product is in stock")
-
-# Add your own schemas here:
-# --------------------------------------------------
-
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+    title: str
+    description: Optional[str] = None
+    price: float
+    category: str
+    in_stock: bool = True
